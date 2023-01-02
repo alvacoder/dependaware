@@ -1,6 +1,6 @@
 name: "Dependaware"
 author: "Adeniji Idris (Alvacoder)"
-description: "A workflow action to send you weekly dependabot alerts to slack and create Linear issues (PS: More integrations to be added in future)"
+description: "A workflow action to send you weekly dependabot alerts to slack and create Linear issues"
 branding:
   icon: 'code'  
   color: 'green'
