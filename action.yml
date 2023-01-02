@@ -1,6 +1,6 @@
-name: "Dependapager"
-author: " Shaik Ajmal R"
-description: "A workflow action to send you weekly dependabot alerts to slack and create Jira tickets"
+name: "Dependaware"
+author: "Adeniji Idris (Alvacoder)"
+description: "A workflow action to send you weekly dependabot alerts to slack and create Linear issues (PS: More integrations to be added in future)"
 branding:
   icon: 'code'  
   color: 'green'
@@ -14,20 +14,11 @@ inputs:
   channel:
     description: " Slack Channel to Send the Alerts Too"
     required: true
-  jira_token:
-    description: " Token Required for quering JIRA REST API"
+  linear_api_key:
+    description: " Linear API Key Required for Linear GraphQL API"
     required: true
-  jira_url:
-    description: " Your Organizations Jira Cloud URL"
-    required: true
-  jira_useremail:
-    description: " Email id of the user associated with the token"
-    required: true
-  jira_project_key:
-    description: " The Project Key for which Jira Tickets are created "
-    required: true
-  jira_issue_type:
-    description: " Issue Type As Task or Epic or INC"
+  linear_team_id:
+    description: " Your Organizations Team ID to create issues for"
     required: true
 outputs:
   total_alerts:

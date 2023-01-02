@@ -1,8 +1,8 @@
-# Dependalinear
-### A github action that helps to send your Dependabot Alerts to Slack, Linear and create JIRA Tickets for Critical and High issues.
+# Dependaware
+### A github action that helps to send your Dependabot Alerts to Slack and Linear for Critical and High issues (PS: More integrations to be added).
 ---
 
-Using Dependalinear in your workflow is very easy , copy the example  workflow file and replace all the required tokens and values . Make sure to schedule the run  for every  7 days , as the action only alerts for new vulnerabilites that have occured in the last 7 days . This is done in order to prevent the action from creating duplicate tickets in JIRA for the same vulnerabilites over and over. 
+Using Dependaware in your workflow is very easy , copy the example  workflow file and replace all the required tokens and values . Make sure to schedule the run  for every  7 days , as the action only alerts for new vulnerabilites that have occured in the last 7 days . This is done in order to prevent the action from creating duplicate tickets in Linear for the same vulnerabilites over and over. 
 
 
 
@@ -18,20 +18,11 @@ github_personal_token:
   channel:
     description: " Slack Channel to Send the Alerts Too"
     required: true
-  jira_token:
-    description: " Token Required for quering JIRA REST API"
+  linear_api_key:
+    description: " Token Required for querying Linear GraphQL API"
     required: true
-  jira_url:
-    description: " Your Organizations Jira Cloud URL"
-    required: true
-  jira_useremail:
-    description: " Email id of the user associated with the token"
-    required: true
-  jira_project_key:
-    description: " The Project Key for which Jira Tickets are created "
-    required: true
-  jira_issue_type:
-    description: " Issue Type As Task or Epic or INC"
+  linear_team_id:
+    description: " Your Organizations Team ID to create issues for"
     required: true
 ```
 
@@ -56,7 +47,7 @@ outputs:
  Workflow File Example
  
  
-``` name: Dependalinear
+``` name: Dependaware
 on:
   schedule:
     - cron: "0 0 * * 1"
@@ -66,22 +57,19 @@ jobs:
   send-slack-alerts:
     runs-on: ubuntu-latest
     steps:
-      - name: Dependalinear
-        id: linear
-        uses: alvacoder/Dependalinear@v1.3
+      - name: Dependaware
+        id: aware
+        uses: alvacoder/Dependaware@v1.0
         with:
           github_personal_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
           slack_token: ${{ secrets.SLACK_TOKEN }}
           channel: CHWEX34534
-          jira_token: ${{ secrets.JIRA_API_TOKEN }}
-          jira_url: 'https://[companyy].atlassian.net'
-          jira_useremail: 'abc@xyzcompany.com'
-          jira_project_key: 'INC'
-          jira_issue_type: 'Task'
+          linear_api_key: ${{ secrets.LINEAR_API_KEY }}
+          linear_team_id: '434KJLX-J'
     
     - name: Check Ouptuts
         run: |
-          echo ${{ steps.linear.outputs.total_alerts }} 
+          echo ${{ steps.aware.outputs.total_alerts }} 
  ```
  
           

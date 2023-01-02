@@ -10,9 +10,8 @@ import sys
 import json
 import datetime
 from dateutil import parser
-from jira import JIRA
 #implement grepping dependabot alerts through graphql
-class Dependalinear(object):
+class Dependaware(object):
 
     def __init__(self):
 
@@ -20,12 +19,10 @@ class Dependalinear(object):
         # Required Secrets for this awesome code to function.
         self.github_token=os.environ["INPUT_GITHUB_PERSONAL_TOKEN"]
 
-        # Required Jira Variables 
-        self.jira_token=os.environ["INPUT_JIRA_TOKEN"]
-        self.jira_url=os.environ["INPUT_JIRA_URL"]
-        self.jira_useremail=os.environ["INPUT_JIRA_USEREMAIL"]
-        self.jira_projectKey=os.environ["INPUT_JIRA_PROJECT_KEY"]
-        self.jira_issue_type=os.environ["INPUT_JIRA_ISSUE_TYPE"]
+        # Required Linear Variable.
+        self.linear_api_key=os.environ["INPUT_LINEAR_API_KEY"]
+        self.linear_team_id=os.environ["INPUT_LINEAR_TEAM_ID"]
+
         # Required Slack Variables 
         self.slack_token=os.environ["INPUT_SLACK_TOKEN"]
         self.slack_channel=os.environ["INPUT_CHANNEL"]
@@ -203,12 +200,13 @@ class Dependalinear(object):
         else:
             print(" Skipping Slack and Jira Alerts ,No New Alerts for this week")
             sys.exit(0)
-    
-    def create_jira_issues(self):
-        issue_list=[]
+
+    def create_linear_issues(self):
+        issue_count=0
         try:
 
-            jira=JIRA(self.jira_url,basic_auth=(self.jira_useremail,self.jira_token))
+            url="https://api.linear.app/graphql"
+            header= { "Authorization":"{}".format(self.linear_api_key) }
 
             description="Affected Package:{}\nRepo URL:{}\nAdvisory URL:{}\nDescription: {}\n"
 
@@ -216,20 +214,46 @@ class Dependalinear(object):
             for key in self.filtered_alerts:
                 if self.filtered_alerts[key][0]=="CRITICAL" or self.filtered_alerts[key][0]=="HIGH":
                     issue_details={
-                            'project':self.jira_projectKey,
-                            'summary': "Dependabot Alerts in repo : {}".format(self.reponame),
+                            'title': "Dependabot Alerts in repo : {}".format(self.reponame),
                             'description':description.format(self.filtered_alerts[key][4],self.dependabot_url,self.filtered_alerts[key][2],self.filtered_alerts[key][1]),
-                            'issuetype': {'name': self.jira_issue_type},
+                            'teamId':self.linear_team_id,
                         }
-                    issue_list.append(issue_details)
+                    body = """
+                    mutation IssueCreate {
+                        issueCreate(
+                            input: {
+                                title: "TITLE"
+                                description: "DESCRIPTION"
+                                teamId: "TEAM_ID"
+                            }
+                        ) {
+                            success
+                            issue {
+                                id
+                                title
+                            }
+                        }
+                    }
+                    """
+                    body=body.replace("TITLE",issue_details.title)
+                    body=body.replace("DESCRIPTION",issue_details.description)
+                    body=body.replace("TEAM_ID",self.linear_team_id)
+                    response=requests.post(url,headers=header,json={'query':body})
+
+                    # Check Response 
+                    if response.status_code==200:
+                        print(json.loads(response.text))
+                    else :
+                        print(response.reason)
+                        sys.exit(1)
+                    issue_count += 1
                     flag=True
                 else:
                     flag=False
             if flag:
-                issues=jira.create_issues(field_list=issue_list)
-                print(" Jira Tickets Created for High and Critical Bugs")
+                print("{} Linear Issues Created for High and Critical Bugs").format(issue_count)
             else:
-                print("Jira Tickets Not Created ,there are no High or Critical Bugs This week")
+                print("Linear Issues Not Created ,there are no High or Critical Bugs This week")
                     
         except Exception as E:
             print("Exception occured :{}".format(E))
@@ -238,7 +262,7 @@ class Dependalinear(object):
     def run(self):
         try:
             self.send_slack_alert()
-            self.create_jira_issues()
+            self.create_linear_issues()
 
             #set outputs
             print("::set-output name=total_alerts::{}".format(self.total_alerts))
@@ -251,6 +275,6 @@ class Dependalinear(object):
             sys.exit(1)
 
 
-Dependalinear().run()
+Dependaware().run()
 
 
