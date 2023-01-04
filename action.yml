@@ -1,18 +1,12 @@
 name: "Dependaware"
 author: "Adeniji Idris (Alvacoder)"
-description: "A workflow action to send you weekly dependabot alerts to slack and create Linear issues"
+description: "A workflow action to send you weekly dependabot alerts to your project management tool"
 branding:
   icon: 'code'  
   color: 'green'
 inputs:
   github_personal_token:
     description: " Github Personal Token to Query github for dependabot alerts"
-    required: true
-  slack_token:
-    description: " Slack Bot Token to Send Alerts "
-    required: true
-  channel:
-    description: " Slack Channel to Send the Alerts Too"
     required: true
   linear_api_key:
     description: " Linear API Key Required for Linear GraphQL API"

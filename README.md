@@ -1,8 +1,8 @@
 # Dependaware
-### A github action that helps to send your Dependabot Alerts to Slack and Linear for Critical and High issues (PS: More integrations to be added).
+### A github action that helps to send your Dependabot Alerts to various project management tools for Critical and High issues (PS: More integrations to be added).
 ---
 
-Using Dependaware in your workflow is very easy , copy the example  workflow file and replace all the required tokens and values . Make sure to schedule the run  for every  7 days , as the action only alerts for new vulnerabilites that have occured in the last 7 days . This is done in order to prevent the action from creating duplicate tickets in Linear for the same vulnerabilites over and over. 
+Using Dependaware in your workflow is very easy , copy the example  workflow file and replace all the required tokens and values . Make sure to schedule the run  for every  7 days , as the action only alerts for new vulnerabilites that have occured in the last 7 days . This is done in order to prevent the action from creating duplicate tickets for the same vulnerabilites over and over. 
 
 
 
@@ -11,12 +11,6 @@ Required Inputs
 ```
 github_personal_token:
     description: " Github Personal Token to Query github for dependabot alerts"
-    required: true
-  slack_token:
-    description: " Slack Bot Token to Send Alerts "
-    required: true
-  channel:
-    description: " Slack Channel to Send the Alerts Too"
     required: true
   linear_api_key:
     description: " Token Required for querying Linear GraphQL API"
@@ -54,7 +48,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  send-slack-alerts:
+  send-alerts:
     runs-on: ubuntu-latest
     steps:
       - name: Dependaware
@@ -62,8 +56,6 @@ jobs:
         uses: alvacoder/Dependaware@v1.0
         with:
           github_personal_token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
-          slack_token: ${{ secrets.SLACK_TOKEN }}
-          channel: CHWEX34534
           linear_api_key: ${{ secrets.LINEAR_API_KEY }}
           linear_team_id: '434KJLX-J'
     

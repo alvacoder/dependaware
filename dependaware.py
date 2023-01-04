@@ -23,9 +23,6 @@ class Dependaware(object):
         self.linear_api_key=os.environ["INPUT_LINEAR_API_KEY"]
         self.linear_team_id=os.environ["INPUT_LINEAR_TEAM_ID"]
 
-        # Required Slack Variables 
-        self.slack_token=os.environ["INPUT_SLACK_TOKEN"]
-        self.slack_channel=os.environ["INPUT_CHANNEL"]
         # Initilializing required Varibales for this code
         self.alerts={}
         self.total_alerts=0
@@ -126,81 +123,6 @@ class Dependaware(object):
             if date_diff_as_number <= 7:
                 self.filtered_alerts[ele]=self.alerts[ele]
 
-    def send_slack_alert(self):
-        self.filter_new_alerts()
-        url="https://slack.com/api/chat.postMessage"
-        header={"Authorization":"Bearer {}".format(self.slack_token)}
-        blocks=[]
-        if bool(self.filtered_alerts):
-            for key in self.filtered_alerts:
-                block= {
-                            "type": "section",
-                            "fields": [
-                                {
-                                    "type": "mrkdwn",
-                                    "text": "*Package Name:*\n{}".format(self.filtered_alerts[key][4])
-                                },
-                                {
-                                    "type": "mrkdwn",
-                                    "text": "*Severity:*\n{}".format(self.filtered_alerts[key][0])
-                                },
-                                {
-                                    "type": "mrkdwn",
-                                    "text": "*Summary:*\n{}".format(self.filtered_alerts[key][1])
-                                }
-                            ],
-                            "accessory": {
-                                "type": "button",
-                                "text": {
-                                    "type": "plain_text",
-                                    "text": "View Advisory",
-                                
-                                },
-                                "value": "advisory",
-                                "url":self.filtered_alerts[key][2],
-                                "action_id": "button-action"
-                            }
-                            
-                        }
-                blocks.append(block)
-            
-            
-            header_block={
-                    "channel":self.slack_channel,
-                        
-                        "blocks": [
-                            {
-                                "type": "section",
-                                "text": {
-                                    "type": "mrkdwn",
-                                    "text": "*Dependabot Alerts for repo:* {}".format(self.reponame)
-                                }
-                                
-                            },
-                            {
-                                "type": "divider"
-                            },
-                        ]
-
-            }
-            header_response=requests.post(url,json=header_block,headers=header)
-            data={
-                        "channel":self.slack_channel,
-                        "blocks": blocks
-                }
-            content_response=requests.post(url,json=data,headers=header)
-
-
-            if (json.loads(content_response.text)["ok"])==True and content_response.status_code==200:
-                print("Slack Alert sent Successfully")
-            else:
-                print("Error Sending Slack Alert")
-                print(content_response.text)
-                sys.exit(1)
-        else:
-            print(" Skipping Slack and Jira Alerts ,No New Alerts for this week")
-            sys.exit(0)
-
     def create_linear_issues(self):
         issue_count=0
         try:
@@ -261,7 +183,6 @@ class Dependaware(object):
    
     def run(self):
         try:
-            self.send_slack_alert()
             self.create_linear_issues()
 
             #set outputs
